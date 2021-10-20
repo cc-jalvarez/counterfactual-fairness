@@ -17,8 +17,8 @@ law$other   <- as.numeric(law$race == "Other")
 law$puerto  <- as.numeric(law$race == "Puertorican")
 law$white   <- as.numeric(law$race == "White")
 
-law$female    <- as.numeric(law$sex == 1)
-law$male      <- as.numeric(law$sex == 2)
+law$female  <- as.numeric(law$sex == 1)
+law$male    <- as.numeric(law$sex == 2)
 
 sense_cols <- c("amerind", "asian", "black", "hisp", "mexican", "other", "puerto", "white", "male", "female")
 
@@ -26,8 +26,8 @@ set.seed(0)
 trainIndex <- createDataPartition(law$first_pf, p = .8, 
                                   list = FALSE, 
                                   times = 1)
-lawTrain <- law[trainIndex,]
-lawTest  <- law[-trainIndex,]
+lawTrain <- law[trainIndex, ]
+lawTest  <- law[-trainIndex, ]
 
 #n <- nrow(df2)
 n <- nrow(lawTrain)
@@ -39,18 +39,25 @@ lawTest$LSAT <- round(lawTest$LSAT)
 
 # don't fit model transductively
 # ------------------------------
-law_stan_train <- list(N = n, K = length(sense_cols), a = data.matrix(lawTrain[,sense_cols]), 
-                          ugpa = lawTrain[,c("UGPA")], lsat = lawTrain[,c("LSAT")], zfya = lawTrain[,c("ZFYA")])
+law_stan_train <- list(N = n, 
+                       K = length(sense_cols), 
+                       a = data.matrix(lawTrain[,sense_cols]),
+                       ugpa = lawTrain[,c("UGPA")], 
+                       lsat = lawTrain[,c("LSAT")], 
+                       zfya = lawTrain[,c("ZFYA")])
 
 
-fit_law_train <- stan(file = 'law_school_train.stan', data = law_stan_train, iter = 2000, chains = 1, verbose = TRUE)
+fit_law_train <- stan(file = 'law_school_train.stan', data = law_stan_train, 
+                      iter = 2000, 
+                      chains = 1, 
+                      verbose = TRUE)
+
 # Extract information
-
 la_law_train <- extract(fit_law_train, permuted = TRUE)
 #u_te_samp <- colMeans(la_law_train$u_TE)
 U_TRAIN   <- colMeans(la_law_train$u)
 
-save(la_law_train,file='law_school_l_stan_train.Rdata')
+save(la_law_train, file = 'law_school_l_stan_train.Rdata')
 
 ugpa0      <- mean(la_law_train$ugpa0)
 eta_u_ugpa <- mean(la_law_train$eta_u_ugpa)
