@@ -4,8 +4,9 @@ library(caret)
 library(rstan)
 
 raw_data <- read.csv("data/law_data.csv")
-law <- dplyr::select(raw_data, race, sex, LSAT, UGPA, region_first, ZFYA, sander_index, first_pf) 
-law <- law[law$region_first != "PO",]
+law <- dplyr::select(raw_data, 
+                     race, sex, LSAT, UGPA, region_first, ZFYA, sander_index, first_pf)
+law <- law[law$region_first != "PO", ]
 law$region_first <- factor(law$region_first)
 
 law$amerind <- as.numeric(law$race == "Amerindian")
@@ -23,21 +24,21 @@ law$male    <- as.numeric(law$sex == 2)
 sense_cols <- c("amerind", "asian", "black", "hisp", "mexican", "other", "puerto", "white", "male", "female")
 
 set.seed(0)
-trainIndex <- createDataPartition(law$first_pf, p = .8, 
+trainIndex <- createDataPartition(law$first_pf, 
+                                  p = .8, 
                                   list = FALSE, 
                                   times = 1)
 lawTrain <- law[trainIndex, ]
 lawTest  <- law[-trainIndex, ]
 
 #n <- nrow(df2)
-n <- nrow(lawTrain)
+n  <- nrow(lawTrain)
 ne <- nrow(lawTest)
 
-
 lawTrain$LSAT <- round(lawTrain$LSAT)
-lawTest$LSAT <- round(lawTest$LSAT)
+lawTest$LSAT  <- round(lawTest$LSAT)
 
-# don't fit model transductively
+# don't fit model transductively  J: TODO, get fit_law_train and fit_law_test.. what's new? where do we intervene it?
 # ------------------------------
 law_stan_train <- list(N = n, 
                        K = length(sense_cols), 
@@ -47,7 +48,8 @@ law_stan_train <- list(N = n,
                        zfya = lawTrain[,c("ZFYA")])
 
 
-fit_law_train <- stan(file = 'law_school_train.stan', data = law_stan_train, 
+fit_law_train <- stan(file = 'law_school_train.stan', 
+                      data = law_stan_train, 
                       iter = 2000, 
                       chains = 1, 
                       verbose = TRUE)
@@ -56,6 +58,10 @@ fit_law_train <- stan(file = 'law_school_train.stan', data = law_stan_train,
 la_law_train <- extract(fit_law_train, permuted = TRUE)
 #u_te_samp <- colMeans(la_law_train$u_TE)
 U_TRAIN   <- colMeans(la_law_train$u)
+# ^e.g., length(la_law_train$u) = 17432000
+# which is nrow(lawTrain)*1000, where 1000 come form the non-warmup iterations
+# so for each ind i, i draw 1000 us!
+# so U_TRAIN has the averrage 'latent' var of each individual given X and A
 
 save(la_law_train, file = 'law_school_l_stan_train.Rdata')
 
@@ -68,33 +74,45 @@ eta_u_lsat <- mean(la_law_train$eta_u_lsat)
 eta_a_lsat <- colMeans(la_law_train$eta_a_lsat)
 
 SIGMA_G <- mean(la_law_train$sigma_g)
+
 #----------------------------------
-law_stan_test <- list(N = ne, K = length(sense_cols), a = data.matrix(lawTest[,sense_cols]),
-                      ugpa = lawTest[,c("UGPA")], lsat = lawTest[,c("LSAT")],
-                      ugpa0 = ugpa0, eta_u_ugpa = eta_u_ugpa, eta_a_ugpa = eta_a_ugpa,
-                      lsat0 = lsat0, eta_u_lsat = eta_u_lsat, eta_a_lsat = eta_a_lsat,
+law_stan_test <- list(N = ne, 
+                      K = length(sense_cols), 
+                      a = data.matrix(lawTest[,sense_cols]),
+                      ugpa = lawTest[ ,c("UGPA")], 
+                      lsat = lawTest[ ,c("LSAT")],
+                      ugpa0 = ugpa0, 
+                      eta_u_ugpa = eta_u_ugpa, 
+                      eta_a_ugpa = eta_a_ugpa,
+                      lsat0 = lsat0, 
+                      eta_u_lsat = eta_u_lsat, 
+                      eta_a_lsat = eta_a_lsat,
                       sigma_g = SIGMA_G)
 
 
-fit_law_test <- stan(file = 'law_school_only_u.stan', data = law_stan_test, iter = 2000, chains = 1, verbose = TRUE)
+fit_law_test <- stan(file = 'law_school_only_u.stan', 
+                     data = law_stan_test, 
+                     iter = 2000, 
+                     chains = 1, 
+                     verbose = TRUE)
+
+# Extract information
 la_law_test <- extract(fit_law_test, permuted = TRUE)
 #u_te_samp <- colMeans(la_law_train$u_TE)
 U_TEST   <- colMeans(la_law_test$u)
 
-
 save(la_law_test,file='law_school_l_stan_test.Rdata')
 
-
-# Classifiers on data
+# Classifiers on data   HERE: how do we use the hyperprior for training?!
 # -------------------
 
 # all features (unfair)
-X_U <- as.data.frame(data.matrix(lawTrain[,sense_cols]))
+X_U <- as.data.frame(data.matrix(lawTrain[ , sense_cols]))
 X_U$ZFYA <- lawTrain$ZFYA
 X_U$LSAT <- lawTrain$LSAT
 X_U$UGPA <- lawTrain$UGPA
 
-X_U_TE <- as.data.frame(data.matrix(lawTest[,sense_cols]))
+X_U_TE <- as.data.frame(data.matrix(lawTest[ , sense_cols]))
 X_U_TE$ZFYA <- lawTest$ZFYA
 X_U_TE$LSAT <- lawTest$LSAT
 X_U_TE$UGPA <- lawTest$UGPA

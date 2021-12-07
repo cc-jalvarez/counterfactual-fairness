@@ -33,7 +33,6 @@ parameters {
   vector[K] eta_a_lsat;
   vector[K] eta_a_zfya;
   
-  
   real<lower=0> sigma_g_Sq;
 }
 
@@ -47,11 +46,12 @@ transformed parameters  {
 model {
   
   // don't have data about this
+  // Level 2:
   u ~ normal(0, 1);
-  
+  // Level 3:
   ugpa0      ~ normal(0, 1);
   eta_u_ugpa ~ normal(0, 1);
-  lsat0     ~ normal(0, 1);
+  lsat0      ~ normal(0, 1);
   eta_u_lsat ~ normal(0, 1);
   eta_u_zfya ~ normal(0, 1);
 

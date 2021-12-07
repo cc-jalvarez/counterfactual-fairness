@@ -1,5 +1,6 @@
 
 data {
+  
   int<lower = 0> N; // number of observations
   int<lower = 0> K; // number of covariates
   matrix[N, K]   a; // sensitive variables
@@ -20,7 +21,6 @@ data {
   //vector[K]      eta_a_pass;
   real           sigma_g;
   
- 
 }
 
 
@@ -41,5 +41,4 @@ model {
   //zfya ~ normal(eta_u_zfya * u + a * eta_a_zfya,1);
   //pass ~ bernoulli_logit(pass0 + eta_u_pass * u + a * eta_a_pass);
   
-
 }
