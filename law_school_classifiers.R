@@ -26,10 +26,7 @@ sense_cols <- c("amerind", "asian", "black", "hisp", "mexican", "other", "puerto
                 "male", "female")
 
 set.seed(0)
-trainIndex <- createDataPartition(law$first_pf, 
-                                  p = .8, 
-                                  list = FALSE, 
-                                  times = 1)
+trainIndex <- createDataPartition(law$first_pf, p = .8, list = FALSE, times = 1)
 lawTrain <- law[trainIndex, ]
 lawTest  <- law[-trainIndex, ]
 
@@ -219,3 +216,7 @@ pred_det_te <- predict(model_det, newdata=lawTest)
 rmse_det_te <- sqrt( sum( (pred_det_te - lawTest$ZFYA)^2 ) / nrow(lawTest) ) # test error
 print('fair deterministic model:')
 print(rmse_det_te)
+
+#
+# EOF
+#
