@@ -20,5 +20,11 @@ fit_the_bern <- stan(file = 'independent_bernoulli_model.stan',
                      data = bernoulli_data,
                      chains = 1, 
                      seed = 1234)
+
 print(fit_the_bern)
 plot(fit_the_bern)
+
+#
+# EOF
+#
+

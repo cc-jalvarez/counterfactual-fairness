@@ -1,11 +1,12 @@
 
 data {
+  
   int<lower = 0> N; // number of observations
   int<lower = 0> K; // number of covariates
   matrix[N, K]   a; // sensitive variables
-  real           ugpa[N]; // UGPA
-  int            lsat[N]; // LSAT
-  real           zfya[N]; // ZFYA
+  real ugpa[N]; // UGPA
+  int  lsat[N]; // LSAT
+  real zfya[N]; // ZFYA
   
 }
 
@@ -37,10 +38,12 @@ parameters {
 }
 
 transformed parameters  {
+  
  // Population standard deviation (a positive real number)
  real<lower=0> sigma_g;
  // Standard deviation (derived from variance)
  sigma_g = sqrt(sigma_g_Sq);
+ 
 }
 
 model {
