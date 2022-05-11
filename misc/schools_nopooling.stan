@@ -10,5 +10,5 @@ parameters {
 }
 
 model {
-  y ~ normal(theta, sigma);
+  y ~ normal(theta, sigma); // for each j in J get y and sigma to get theta_j
 }

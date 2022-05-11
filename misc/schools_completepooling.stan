@@ -8,6 +8,7 @@ data {
 parameters {
   real theta;              // pooled school effect
 }
+
 model {
-  y ~ normal(theta, sigma);
+  y ~ normal(theta, sigma); // for each j in J, get y and sigma for theta
 }

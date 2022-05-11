@@ -6,9 +6,9 @@ data {
 }
 
 parameters {
-  real theta[J];     // school effect
-  real mu;           // mean for schools
-  real<lower=0> tau; // variance between schools
+  real theta[J];     // school effect [a theta per school]
+  real mu;           // mean for schools [one mu for theta]
+  real<lower=0> tau; // variance between schools [one tau for theta]
 }
 
 model {
