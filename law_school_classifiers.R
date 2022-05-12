@@ -37,11 +37,11 @@ ne <- nrow(lawTest)
 lawTrain$LSAT <- round(lawTrain$LSAT)
 lawTest$LSAT  <- round(lawTest$LSAT)
 
-estimated_U <- TRUE
+estimate_U <- FALSE
 # don't fit model transductively
 # ------------------------------
 
-if(estimated_U){
+if(estimate_U){
   
   # get la_law_train:
   law_stan_train <- list(N = n, 
@@ -88,7 +88,7 @@ SIGMA_G <- mean(la_law_train$sigma_g)
 
 #----------------------------------
 
-if(estimated_U){
+if(estimate_U){
   
   # get_la_law_test:
   law_stan_test <- list(N = ne, 
