@@ -7,7 +7,7 @@ raw_data <- read.csv("data/law_data.csv")
 
 law <- dplyr::select(raw_data, 
                      race, sex, LSAT, UGPA, region_first, ZFYA, sander_index, first_pf)
-law <- law[law$region_first != "PO", ]
+law <- law[law$region_first != "PO", ] # why PO?
 law$region_first <- factor(law$region_first)
 
 law$amerind <- as.numeric(law$race == "Amerindian")
